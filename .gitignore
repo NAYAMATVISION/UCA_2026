@@ -1,0 +1,11 @@
+.o
+.out
+.exe
+.class
+.log
+.env
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db
+
