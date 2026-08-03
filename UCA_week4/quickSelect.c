@@ -2,18 +2,22 @@
 #include <stdlib.h>
 #include <time.h>
 
-void swap(int *a, int *b) {
-    int t = *a;
+void swap(int *a, int *b)
+{
+    int temp = *a;
     *a = *b;
-    *b = t;
+    *b = temp;
 }
 
-int partition(int arr[], int low, int high) {
+int partition(int arr[], int low, int high)
+{
     int pivot = arr[high];
     int i = low;
 
-    for (int j = low; j < high; j++) {
-        if (arr[j] <= pivot) {
+    for(int j = low; j < high; j++)
+    {
+        if(arr[j] <= pivot)
+        {
             swap(&arr[i], &arr[j]);
             i++;
         }
@@ -23,48 +27,79 @@ int partition(int arr[], int low, int high) {
     return i;
 }
 
-void quickSelect(int arr[], int low, int high, int k) {
-    if (low < high) {
+void quickSelect(int arr[], int low, int high, int k)
+{
+    if(low < high)
+    {
         int p = partition(arr, low, high);
 
-        if (p == k)
+        if(p == k)
             return;
-        else if (p > k)
+        else if(k < p)
             quickSelect(arr, low, p - 1, k);
         else
             quickSelect(arr, p + 1, high, k);
     }
 }
 
-int main() {
-    int n, k;
+void randomArray(int arr[], int n)
+{
+    for(int i = 0; i < n; i++)
+        arr[i] = rand();
+}
 
-    printf("Enter number of elements: ");
-    scanf("%d", &n);
+double elapsed_ms(clock_t start, clock_t end)
+{
+    return ((double)(end - start) * 1000.0) / CLOCKS_PER_SEC;
+}
 
-    int *arr = (int *)malloc(n * sizeof(int));
+int main()
+{
+    srand(time(NULL));
 
-    printf("Enter elements:\n");
-    for (int i = 0; i < n; i++)
-        scanf("%d", &arr[i]);
+    int sizes[] = {
+        1000,
+        5000,
+        10000,
+        20000,
+        50000,
+        100000,
+        200000,
+        500000
+    };
 
-    printf("Enter K: ");
-    scanf("%d", &k);
+    int numSizes = sizeof(sizes) / sizeof(sizes[0]);
 
-    if (k > n || k <= 0) {
-        printf("Invalid K\n");
-        free(arr);
-        return 0;
+    printf("-----------------------------------------\n");
+    printf(" Dataset Size\tAverage Time (ms)\n");
+    printf("-----------------------------------------\n");
+
+    for(int s = 0; s < numSizes; s++)
+    {
+        int n = sizes[s];
+        double totalTime = 0.0;
+
+        for(int trial = 0; trial < 20; trial++)
+        {
+            int *arr = (int *)malloc(n * sizeof(int));
+
+            randomArray(arr, n);
+
+            int k = n / 10;
+
+            clock_t start = clock();
+
+            quickSelect(arr, 0, n - 1, k - 1);
+
+            clock_t end = clock();
+
+            totalTime += elapsed_ms(start, end);
+
+            free(arr);
+        }
+
+        printf("%10d\t%10.4f\n", n, totalTime / 20.0);
     }
 
-    quickSelect(arr, 0, n - 1, k - 1);
-
-    printf("Smallest %d elements:\n", k);
-    for (int i = 0; i < k; i++)
-        printf("%d ", arr[i]);
-
-    printf("\n");
-
-    free(arr);
     return 0;
 }
